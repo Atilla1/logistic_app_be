@@ -6,7 +6,7 @@ const router = express.Router();
 
 //Hämta alla paints
 router.get("/", async (req, res) => {
-  const paints = await prisma.paint.findMany();
+  const paints = await prisma.paint.findMany({ include: { category: true } });
   return res.send(paints);
 });
 
@@ -30,17 +30,15 @@ router.post("/", async (req, res) => {
 
   if (!category)
     res.status(404).send("The category with the given id was not found");
-
-  const bestBeforeDate = new Date();
-  bestBeforeDate.setFullYear(bestBeforeDate.getFullYear() + 2);
-
   const paint = await prisma.paint.create({
     data: {
       name: req.body.name,
       quantity: req.body.quantity,
       price: req.body.price,
       supplierInfo: req.body.supplierInfo,
-      bestBeforeDate,
+      orderDate: req.body.orderDate,
+      ean_gtin: req.body.ean_gtin,
+      bestBeforeDate: req.body.bestBeforeDate,
       categoryId: req.body.categoryId,
     },
     include: {
@@ -65,9 +63,6 @@ router.put("/:id", async (req, res) => {
   if (!category)
     return res.status(404).send("The category with the gived id was not found");
 
-  const bestBeforeDate = new Date();
-  bestBeforeDate.setFullYear(bestBeforeDate.getFullYear() + 2);
-
   const updatedPaint = await prisma.paint.update({
     where: { id: req.params.id },
     data: {
@@ -75,7 +70,9 @@ router.put("/:id", async (req, res) => {
       quantity: req.body.quantity,
       price: req.body.price,
       supplierInfo: req.body.supplierInfo,
-      bestBeforeDate,
+      orderDate: req.body.orderDate,
+      ean_gtin: req.body.ean_gtin,
+      bestBeforeDate: req.body.bestBeforeDate,
       categoryId: req.body.categoryId,
     },
   });
